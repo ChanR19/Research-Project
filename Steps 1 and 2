@@ -30,6 +30,6 @@ for i in range(int(numberOfFiles)):
     print(url + " download done")
     print(url + " unzipping")
     fileName = splitData[i].split("/")[6]
-    print(url + " unzipped")
     zip_ref = zipfile.ZipFile(zipDirectory + "/" + fileName, 'r')
     zip_ref.extractall(unzippedDirectory)
+    print(url + " unzipped")
