@@ -7,7 +7,7 @@ Currently, the only way to actually run the code is this:
 6. Copy and paste in the code from https://github.com/ChanR19/Research-Project/blob/master/Step%201 
 7. Go to File>Settings>Project:(what you named it)>Project Interpreter and click on the green + button on the top right corner.
 8. Type in "wget" and click on Install Package on the bottom left corner
-^ Is setup and dosen't need to be done again
+
 9. To run the program, click on Run>Run (ontop of Debug)>What you named the Python File
 10. Follow the instructions from the program
 
