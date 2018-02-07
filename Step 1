@@ -1,0 +1,24 @@
+link = "https://www.sec.gov/files/EDGAR_LogFileData_thru_Jun2017.html"
+
+import wget
+import requests
+
+print("Using: " + link)
+print("If you want to change the link, you will have to change it in line 1 of the code")
+print("If you are using a link, use the one under 'Logfile List'")
+directory = input("Input Directory: ")
+numberOfFiles = input("Input number of files you want to download (type 'ALL' if you want them all): ")
+data = requests.get(link)
+splitData = data.text.split(" ")
+
+for i in range(11):
+    del splitData[0]
+
+if numberOfFiles == "ALL":
+    numberOfFiles = len(splitData)
+
+for i in range(int(numberOfFiles)):
+    url = "http://" + splitData[0].replace("\r\n", "")
+    print("downloading " + url)
+    wget.download(url, directory)
+    print(url + " done")
