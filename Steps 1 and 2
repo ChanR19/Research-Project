@@ -2,12 +2,14 @@ link = "https://www.sec.gov/files/EDGAR_LogFileData_thru_Jun2017.html"
 
 import wget
 import requests
+import zipfile
 
 print("Using: " + link)
 print("If you want to change the link, you will have to change it in line 1 of the code")
 print("If you are using a link, use the one under 'Logfile List'")
-directory = input("Input Directory: ")
-numberOfFiles = input("Input number of files you want to download (type 'ALL' if you want them all): ")
+zipDirectory = input("Input Directory to store zipped files: ")
+unzippedDirectory = input("Input Directory to store unzipped files: ")
+numberOfFiles = input("Input number of files you want to retrieve (type 'ALL' if you want them all): ")
 data = requests.get(link)
 splitData = data.text.split(" ")
 
@@ -24,5 +26,10 @@ for i in range(int(numberOfFiles)):
     else:
         url = "http://" + splitData[i]
     print(url + " downloading")
-    wget.download(url, directory)
-    print(url + " done")
+    wget.download(url, zipDirectory)
+    print(url + " download done")
+    print(url + " unzipping")
+    fileName = splitData[i].split("/")[6]
+    print(url + " unzipped")
+    zip_ref = zipfile.ZipFile(zipDirectory + "/" + fileName, 'r')
+    zip_ref.extractall(unzippedDirectory)
