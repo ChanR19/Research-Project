@@ -18,7 +18,7 @@ if numberOfFiles == "ALL":
     numberOfFiles = len(splitData)
 
 for i in range(int(numberOfFiles)):
-    url = "http://" + splitData[0].replace("\r\n", "")
-    print("downloading " + url)
+    url = "http://" + splitData[i].replace("\r\n", "")
+    print(url + " downloading")
     wget.download(url, directory)
     print(url + " done")
