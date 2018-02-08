@@ -11,7 +11,10 @@ zipDirectory = input("Input Directory to store zipped files: ")
 unzippedDirectory = input("Input Directory to store unzipped files: ")
 numberOfFiles = input("Input number of files you want to retrieve (type 'ALL' if you want them all): ")
 data = requests.get(link)
-splitData = data.text.split(" ")
+dataTextProcess1 = data.text.replace(" \r\n", " ")
+dataTextProcess2 = dataTextProcess1.replace("p\r\n", "p ")
+splitData = dataTextProcess2.split(" ")
+
 
 for i in range(11):
     del splitData[0]
@@ -20,11 +23,7 @@ if numberOfFiles == "ALL":
     numberOfFiles = len(splitData)
 
 for i in range(int(numberOfFiles)):
-    url = ""
-    if "\r\n" in splitData[i]:
-        url = "http://" + splitData[i].replace("\r\n", "")
-    else:
-        url = "http://" + splitData[i]
+    url = "http://" + splitData[i]
     print(url + " downloading")
     wget.download(url, zipDirectory)
     print(url + " download done")
