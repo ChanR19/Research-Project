@@ -3,33 +3,40 @@ link = "https://www.sec.gov/files/EDGAR_LogFileData_thru_Jun2017.html"
 import wget
 import requests
 import zipfile
+import os
 
 print("Using: " + link)
 print("If you want to change the link, you will have to change it in line 1 of the code")
 print("If you are using a link, use the one under 'Logfile List'")
 zipDirectory = input("Input Directory to store zipped files: ")
 unzippedDirectory = input("Input Directory to store unzipped files: ")
-numberOfFiles = input("Input number of files you want to retrieve (type 'ALL' if you want them all): ")
+deleteZip = input("Delete the zip file after it's unzipped? (Y/N)(You will still have to empty your recycling bin): ")
+leftOff = int(input("Input where you left off (type: 0 if you just started): "))
+
 data = requests.get(link)
 dataTextProcess1 = data.text.replace(" \r\n", " ")
 dataTextProcess2 = dataTextProcess1.replace("p\r\n", "p ")
 splitData = dataTextProcess2.split(" ")
-
-
 for i in range(11):
     del splitData[0]
+del(splitData[len(splitData) - 1])
 
-if numberOfFiles == "ALL":
-    numberOfFiles = len(splitData)
+print("There are " + str(len(splitData)) + " Files")
+end = int(input("Input number of file that you want to end at: "))
 
-for i in range(int(numberOfFiles)):
+for i in range(leftOff, end):
     url = "http://" + splitData[i]
+    fileName = splitData[i].split("/")[6]
     print(url + " downloading")
     wget.download(url, zipDirectory)
     print(url + " download done")
-    print(url + " unzipping")
-    fileName = splitData[i].split("/")[6]
+    print(zipDirectory + "/" + fileName + " is being unzipped")
     zip_ref = zipfile.ZipFile(zipDirectory + "/" + fileName, 'r')
     zip_ref.extractall(unzippedDirectory)
-    print(url + " unzipped")
+    zip_ref.close()
+    print(zipDirectory + "/" + fileName + " unzipped")
+    if deleteZip == "Y":
+        print(zipDirectory + "/" + fileName + " is being deleted")
+        os.remove(zipDirectory + "/" + fileName)
+        print(zipDirectory + "/" + fileName + " deleted")
     print(str(i + 1) + " of " + str(len(splitData)) + " done")
