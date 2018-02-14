@@ -4,6 +4,7 @@ import wget
 import requests
 import zipfile
 import os
+import time
 
 print("Using: " + link)
 print("If you want to change the link, you will have to change it in line 1 of the code")
@@ -24,19 +25,24 @@ del(splitData[len(splitData) - 1])
 print("There are " + str(len(splitData)) + " Files")
 end = int(input("Input number of file that you want to end at: "))
 
-for i in range(leftOff, end):
-    url = "http://" + splitData[i]
-    fileName = splitData[i].split("/")[6]
-    print(url + " downloading")
-    wget.download(url, zipDirectory)
-    print(url + " download done")
-    print(zipDirectory + "/" + fileName + " is being unzipped")
-    zip_ref = zipfile.ZipFile(zipDirectory + "/" + fileName, 'r')
-    zip_ref.extractall(unzippedDirectory)
-    zip_ref.close()
-    print(zipDirectory + "/" + fileName + " unzipped")
-    if deleteZip == "Y":
-        print(zipDirectory + "/" + fileName + " is being deleted")
-        os.remove(zipDirectory + "/" + fileName)
-        print(zipDirectory + "/" + fileName + " deleted")
-    print(str(i + 1) + " of " + str(len(splitData)) + " done")
+i = leftOff
+while i < end:
+    try:
+        url = "http://" + splitData[i]
+        fileName = splitData[i].split("/")[6]
+        print(url + " downloading")
+        wget.download(url, zipDirectory)
+        print(url + " download done")
+        print(zipDirectory + "/" + fileName + " is being unzipped")
+        zip_ref = zipfile.ZipFile(zipDirectory + "/" + fileName, 'r')
+        zip_ref.extractall(unzippedDirectory)
+        zip_ref.close()
+        print(zipDirectory + "/" + fileName + " unzipped")
+        if deleteZip == "Y":
+            print(zipDirectory + "/" + fileName + " is being deleted")
+            os.remove(zipDirectory + "/" + fileName)
+            print(zipDirectory + "/" + fileName + " deleted")
+        print(str(i + 1) + " of " + str(len(splitData)) + " done")
+        i += 1
+    except ConnectionResetError:
+        time.sleep(1800)
