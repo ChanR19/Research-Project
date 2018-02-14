@@ -46,3 +46,4 @@ while i < end:
         i += 1
     except ConnectionResetError:
         time.sleep(1800)
+        print("Connection reset by remote host. Waiting 30 mins to try again")
