@@ -45,5 +45,5 @@ while i < end:
         print(str(i + 1) + " of " + str(len(splitData)) + " done")
         i += 1
     except ConnectionResetError:
-        time.sleep(1800)
-        print("Connection reset by remote host. Waiting 30 mins to try again")
+        time.sleep(600)
+        print("Connection reset by remote host. Waiting 10 mins to try again")
