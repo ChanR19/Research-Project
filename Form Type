@@ -1,0 +1,55 @@
+import requests
+folder = input("Input the folder the files are in: ")
+input_file_name = input("Input the name of the links file: ")
+output_file_name = input("Input the name of the output file: ")
+errors_file_name = input("Input the name of the errors file (links that don't work will go here): ")
+
+input_file = open(folder + "/" + input_file_name, "r")
+links = input_file.read().split("\n")
+input_file.close()
+number_of_links = len(links)
+number_of_runs = int(input("There are " + str(number_of_links) + " links. How many do you want to run?: "))
+
+output_file = open(folder + "/" + output_file_name, "a+")
+error_file = open(folder + "/" + errors_file_name, "a+")
+
+for i in range(number_of_runs):
+    try:
+        if "index.htm" in links[i]:
+            print("accessing: " + links[i] + "(" + str(i + 1) + "/" + str(number_of_links) + ")")
+            data = requests.get(links[i])
+            html = data.text
+
+            html_processed = html.replace("<strong>", ";").replace("</strong>", ";")
+            html_split = html_processed.split(";")
+            output_file.write(links[i] + "," + html_split[16] + "\n")
+            print(links[i] + "," + html_split[16] + " added to " + output_file_name)
+        elif ".txt" in links[i]:
+            print("accessing: " + links[i] + "(" + str(i + 1) + "/" + str(number_of_links) + ")")
+            data = requests.get(links[i])
+            html = data.text
+
+            html_split = html.split(":")
+            raw_form_type = html_split[html_split.index("\n\t\tFORM TYPE") + 1]
+            form_type = raw_form_type.replace("\t\t", "").replace("\nSEC ACT", "")
+            output_file.write(links[i] + "," + "Form " + form_type + "\n")
+            print(links[i] + "," + "Form " + form_type + " added to " + output_file_name)
+        elif ".sgml" in links[i]:
+            print("accessing: " + links[i] + "(" + str(i + 1) + "/" + str(number_of_links) + ")")
+            data = requests.get(links[i])
+            html = data.text
+
+            html_processed = html.replace("<", ";").replace(">", ";").replace("\n", "")
+            html_split = html_processed.split(";")
+            form_type = html_split[html_split.index("FORM-TYPE") + 1]
+            output_file.write(links[i] + "," + "Form " + form_type + "\n")
+            print(links[i] + "," + "Form " + form_type + " added to " + output_file_name)
+        else:
+            print(links[i] + " is skipped and added to the errors file")
+            error_file.write(links[i] + "\n")
+    except:
+        print(links[i] + " is skipped and added to the errors file")
+        error_file.write(links[i] + "\n")
+output_file.close()
+error_file.close()
+print("done")
