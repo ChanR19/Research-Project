@@ -1,55 +1,94 @@
 import requests
+import time
 folder = input("Input the folder the files are in: ")
 input_file_name = input("Input the name of the links file: ")
 output_file_name = input("Input the name of the output file: ")
-errors_file_name = input("Input the name of the errors file (links that don't work will go here): ")
+errors2_file_name = input("Input the name of the file for links that don't have permission: ")
+errors_file_name = input("Input the name of the other errors file(links that don't work for another reason): ")
+
+i = int(input("Input where you left off (type: 0 if you just started): "))# left off
 
 input_file = open(folder + "/" + input_file_name, "r")
 links = input_file.read().split("\n")
 input_file.close()
 number_of_links = len(links)
-number_of_runs = int(input("There are " + str(number_of_links) + " links. How many do you want to run?: "))
+end = int(input("There are "+str(number_of_links)+" links. Input number of file that you want to end at: "))
 
 output_file = open(folder + "/" + output_file_name, "a+")
 error_file = open(folder + "/" + errors_file_name, "a+")
+error2_file = open(folder + "/" + errors2_file_name, "a+")
 
-for i in range(number_of_runs):
+form4s = 0
+total_forms = 0
+
+while i < end:
     try:
         if "index.htm" in links[i]:
+            total_forms += 1
             print("accessing: " + links[i] + "(" + str(i + 1) + "/" + str(number_of_links) + ")")
-            data = requests.get(links[i])
-            html = data.text
+            html = requests.get(links[i]).text
 
             html_processed = html.replace("<strong>", ";").replace("</strong>", ";")
             html_split = html_processed.split(";")
+            form_type = html_split[16].replace("\n", "")
             output_file.write(links[i] + "," + html_split[16] + "\n")
-            print(links[i] + "," + html_split[16] + " added to " + output_file_name)
+            print(links[i] + "," + form_type + " added to " + output_file_name)
+            if form_type == "Form 4":
+                form4s += 1
         elif ".txt" in links[i]:
+            total_forms += 1
             print("accessing: " + links[i] + "(" + str(i + 1) + "/" + str(number_of_links) + ")")
-            data = requests.get(links[i])
-            html = data.text
+            html = requests.get(links[i]).text
 
-            html_split = html.split(":")
-            raw_form_type = html_split[html_split.index("\n\t\tFORM TYPE") + 1]
-            form_type = raw_form_type.replace("\t\t", "").replace("\nSEC ACT", "")
+            html_processed = html.replace("<", ";").replace(">", ";")
+            html_split = html_processed.split(";")
+            form_type = html_split[html_split.index("TYPE") + 1].replace("\n", "")
             output_file.write(links[i] + "," + "Form " + form_type + "\n")
             print(links[i] + "," + "Form " + form_type + " added to " + output_file_name)
+            if form_type == "4" or "Form 4":
+                form4s += 1
         elif ".sgml" in links[i]:
+            total_forms += 1
             print("accessing: " + links[i] + "(" + str(i + 1) + "/" + str(number_of_links) + ")")
-            data = requests.get(links[i])
-            html = data.text
+            html = requests.get(links[i]).text
 
             html_processed = html.replace("<", ";").replace(">", ";").replace("\n", "")
             html_split = html_processed.split(";")
-            form_type = html_split[html_split.index("FORM-TYPE") + 1]
+            form_type = html_split[html_split.index("FORM-TYPE") + 1].replace("\n", "")
             output_file.write(links[i] + "," + "Form " + form_type + "\n")
             print(links[i] + "," + "Form " + form_type + " added to " + output_file_name)
+            if form_type == "Form 4":
+                form4s += 1
+        elif ".zip" in links[i] or ".paper" in links[i]:
+            print(links[i] + " (" + str(i + 1) + "/" + str(number_of_links) + ") is skipped (zip/paper file) and added to the errors file")
+            error_file.write(links[i] + ", zip/paper" + "\n")
         else:
-            print(links[i] + " is skipped and added to the errors file")
-            error_file.write(links[i] + "\n")
-    except:
-        print(links[i] + " is skipped and added to the errors file")
-        error_file.write(links[i] + "\n")
+            print("accessing: " + links[i] + "(" + str(i + 1) + "/" + str(number_of_links) + ")")
+            html = requests.get(links[i]).text
+            if "AccessDenied" in html:
+                print(links[i] + " (" + str(i + 1) + "/" + str(number_of_links) + ") is skipped (access denied) and added to the errors file")
+                error2_file.write(links[i] + ", access denied" + "\n")
+            else:
+                print(links[i] + " (" + str(i + 1) + "/" + str(number_of_links) + ") is skipped (unknown format) and added to the errors file")
+                error_file.write(links[i] + ", unknown format" + "\n")
+        i += 1
+    except Exception as e:
+        print("accessing: " + links[i] + "(" + str(i + 1) + "/" + str(number_of_links) + ")")
+        html = requests.get(links[i]).text
+        if "AccessDenied" in html:
+            print(links[i] +" (" + str(i + 1) + "/" + str(number_of_links) + ") is skipped (access denied) and added to the errors file")
+            error2_file.write(links[i] + ", access denied" + "\n")
+            i += 1
+        elif e == ConnectionResetError:
+            print("Connection reset by remote host. Waiting 10 minutes to try again")
+            time.sleep(600)
+        else:
+            print(links[i] + " (" + str(i + 1) + "/" + str(number_of_links) + ") is skipped" + " (" + str(e) + ") " + "and added to the errors file")
+            error_file.write(links[i] + ", " + str(e) + "\n")
+            i += 1
 output_file.close()
 error_file.close()
+error2_file.close()
 print("done")
+print("ended at: " + str(end))
+print(str(form4s)+"/"+str(total_forms) + " accessible forms are Form 4 (about)")
