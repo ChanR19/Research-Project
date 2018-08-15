@@ -1,0 +1,30 @@
+import csv
+import datetime
+
+all_data = []
+all_potential_robots_1 = []
+potential_robots_1 = []
+
+with open("C:/Research Data/log20041231.csv") as csvfile:
+    file = csv.reader(csvfile)
+    for row in file:
+        if row[0] != "ip":
+            time_split = row[2].split(":")
+            total_seconds = datetime.timedelta(hours = int(time_split[0]), minutes = int(time_split[1]), seconds = int(time_split[2])).total_seconds()
+            all_data.append([row[0],total_seconds])
+
+            if all_data.count(row[0]) >= 100:
+                if row[0] not in potential_robots_1:
+                    potential_robots_1.append(row[0])
+                    print("adding new list")
+                    all_potential_robots_1.append([row[0],total_seconds])
+                    print("re-looping to find missing robots")
+                    rows = 0
+                    for i in range(len(all_data)-1, -1 ,-1):
+                        if all_data[i] == row[0]:
+                            all_potential_robots_1.append(all_data[i]) #screwed up
+                            all_potential_robots_1.append(all_data[i])
+                else:
+                    for list in all_potential_robots_1:
+                        if list[0] == row[0]:
+                            list.append([row[0], total_seconds])
