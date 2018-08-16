@@ -1,0 +1,24 @@
+import csv
+import time
+
+num_per_day = 50
+
+all_ips = []
+potential_robots_ips_1 = []
+
+file_loc = input("Enter file directory: ")
+file_name = input("Enter file name: ")
+
+t1 = time.time()
+with open(file_loc+"/"+file_name) as csvfile:
+    file = csv.reader(csvfile)
+    for row in file:
+        if row[0] != "ip":
+            time_split = row[2].split(":")
+            all_ips.append(row[0])
+        if row[0] not in potential_robots_ips_1 and all_ips.count(row[0]) > num_per_day:
+            potential_robots_ips_1.append(row[0])
+t2 = time.time()
+print("LMpv robots:", potential_robots_ips_1)
+print("There are",len(potential_robots_ips_1),"LMpv robots in",file_name)
+print("Finished in",t2-t1,"seconds")
