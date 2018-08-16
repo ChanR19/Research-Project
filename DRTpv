@@ -13,8 +13,10 @@ potential_robots_ips_2 = []
 
 file_loc = input("Enter file directory: ")
 file_name = input("Enter file name: ")
+status = input("Would you like to know the status every 100000 rows? (slightly slower)(y/n) ")
 
 t1 = time.time()
+rows = 0
 with open(file_loc+"/"+file_name) as csvfile:
     file = csv.reader(csvfile)
     for row in file:
@@ -37,13 +39,16 @@ with open(file_loc+"/"+file_name) as csvfile:
                             break
                 else: #else, add the time to the dictionary
                     all_potential_robots_1[row[0]].append(total_seconds)
+            if status == "y":
+                rows += 1
+                if rows%100000 == 0:
+                    print(rows, "rows processed")
 #check the more than 5 per minute condition for each ip address
 for k, v in all_potential_robots_1.items():
     for i in range(len(v)-(num_per_minute+1)):
         if v[i+num_per_minute+1] - v[i] <= 60:
             potential_robots_ips_2.append(k)
             break
-
 t2 = time.time()
 print("DRTpv robots:", potential_robots_ips_1)
 print("There are",len(potential_robots_ips_1),"DRTpv robots in",file_name)
