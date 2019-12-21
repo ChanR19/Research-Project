@@ -2,10 +2,8 @@ import csv
 import datetime
 import time
 
-#file_loc = input("Enter file directory: ")
-file_loc="C:/Users/ryanc/Desktop/Code/Fin_Research_2/log20150725"
-#file_name = input("Enter file name: ")
-file_name="log20150725.csv"
+file_loc = input("Enter file directory: ")
+file_name = input("Enter file name: ")
 
 ips={}
 bot_ips=[]
@@ -29,7 +27,7 @@ with open(file_loc+"/"+file_name, encoding='utf-8') as csvfile:
             if(num_organized%1000000==0):
                 print("organized "+str(num_organized) + " entries")
 
-print("finished organizing data. Now processing data")
+print("finished organizing " + str(num_organized)+ " entries. Now processing data")
 print("there are "+str(len(ips))+ " unique IPS")
 
 num_processed=0
@@ -43,11 +41,11 @@ for ip in ips:
                 break
 
     num_processed+=1
-    if(num_processed%10000==0):
+    if(num_processed%100000==0):
         print("processed "+str(num_processed) +" IPs")
 t2=time.time()
 
-print("All bots: "+ str(bot_ips))
+print("All bots:\n"+ str(bot_ips))
 print("There are "+str(len(bot_ips))+ " bots")
 print("Finished in "+str(t2-t1)+" seconds")
 input("press any key to continue")
